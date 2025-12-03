@@ -5,18 +5,18 @@
 
     <!-- Decorative Shadow Bottom Left -->
     <div class="absolute bottom-0 w-2xl h-screen right-0 pointer-events-none opacity-10" data-aos="fade-right">
-        <img src="/images/bgdetails.png" alt="" class="w-full h-screen object-cover" loading="lazy" />
+        <img src="/images/bgdetails.png" alt="" class="w-full h-screen object-cover"/>
     </div>
 
     <div class="relative w-full max-w-md h-[600px] mx-auto">
         <!-- Blue Envelope (Top Left) -->
         <div class="absolute top-0 -left-10 z-0" data-aos="fade-right" data-aos-duration="1000">
-            <img src="/images/4.png" alt="Envelope" class="w-full h-100 object-cover" loading="lazy" />
+            <img src="/images/4.png" alt="Envelope" class="w-full h-100 object-cover" />
         </div>
 
         <!-- Main Invitation Card (Center, overlapping) -->
-        <div class="absolute top-50 left-22 z-20 w-72 md:w-60" data-aos="fade-up" data-aos-delay="400">
-            <div class="relative p-8 md:p-10 text-center bg-cover bg-center w-75 h-115" style="background-image: url('/images/5.png');">
+        <div class="absolute top-50 left-22 z-20 w-72 md:w-80" data-aos="fade-up" data-aos-delay="400">
+            <div class="relative p-8 md:p-10 text-center bg-cover bg-center rounded-3xl min-h-[460px]" style="background-image: url('/images/5.png');">
                 <!-- Header -->
                 <p class="text-[10px] mt-12 uppercase tracking-[0.25em] text-gray-400 leading-relaxed">
                     Con la bendición de Dios<br/>y nuestros padres
@@ -63,14 +63,35 @@
           
                 
                 <!-- Wax Seal -->
-                <div class="absolute -bottom-2 z-30 w-15 h-15 left-21">
+                <div class="absolute -bottom-2 z-30 w-20 h-20 left-18">
                     <img src="/images/6.png" alt="Wax Seal" class="w-full h-full object-cover" />
                 </div>
 
             </div>
             <div class="absolute -bottom-30 -right-5 transform -translate-x-1/2 w-80 h-80 z-25">
                     <img src="/images/7.png" alt="Wax Seal" class="w-full h-full object-cover" />
+                     <p class="text-[15px] text-gray-500 leading-relaxed absolute bottom-30 left-22 text-center">
+                    Invitación válida para:<br/> <span id="guest-count" class="text-[25px] tracking-wide font-bold text-gray-800" style="font-family: 'Merriweather', serif;">2</span><br/> persona<span id="plural-s">s</span>
+                </p>
                 </div>
         </div>
     </div>
 </section>
+
+<script>
+    // Get the number from URL hash (e.g., #3 would be 3 guests)
+    const hash = window.location.hash.substring(1); // Remove the # symbol
+    const guestCount = parseInt(hash) || 1; // Default to 2 if no hash or invalid
+    
+    const guestCountEl = document.getElementById('guest-count');
+    const pluralEl = document.getElementById('plural-s');
+    
+    if (guestCountEl) {
+        guestCountEl.textContent = guestCount.toString();
+    }
+    
+    // Handle singular vs plural
+    if (pluralEl && guestCount === 1) {
+        pluralEl.textContent = '';
+    }
+</script>
