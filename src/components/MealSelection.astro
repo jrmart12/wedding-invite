@@ -1,0 +1,196 @@
+---
+---
+
+<section class="py-20 px-6 flex flex-col items-center justify-center text-center relative overflow-hidden bg-[#F5F5F0]">
+    <div class="relative z-10 w-full max-w-md space-y-8">
+        
+        <!-- Header -->
+        <div data-aos="fade-up">
+            <h2 class="text-4xl font-serif italic text-gray-800 mb-3">Menú</h2>
+            <p class="text-xs uppercase tracking-widest text-gray-500 leading-relaxed">
+                Por favor seleccione su plato<br/>para cada invitado
+            </p>
+        </div>
+
+        <!-- Guest count display -->
+        <div class="text-sm text-gray-500" data-aos="fade-up" data-aos-delay="100">
+            Invitados: <span id="meal-guest-count" class="font-bold text-gray-800">1</span>
+        </div>
+
+        <!-- Meal selections container -->
+        <div id="meal-selections" class="space-y-6" data-aos="fade-up" data-aos-delay="200">
+            <!-- Dynamically generated per guest -->
+        </div>
+
+        <!-- Send WhatsApp Button -->
+        <div data-aos="fade-up" data-aos-delay="400">
+            <button
+                id="send-meal-btn"
+                class="inline-block px-10 py-4 border border-gray-800 text-gray-800 uppercase tracking-widest text-xs hover:bg-gray-800 hover:text-white transition-all duration-300 transform hover:-translate-y-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                disabled
+            >
+                Confirmar Platos por WhatsApp
+            </button>
+            <p id="meal-error" class="text-red-400 text-xs mt-3 hidden">
+                Por favor seleccione un plato para cada invitado
+            </p>
+        </div>
+    </div>
+</section>
+
+<style>
+    .meal-option {
+        transition: all 0.3s ease;
+    }
+    .meal-option:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .meal-option.selected {
+        border-color: #1f2937 !important;
+        background-color: #f9fafb;
+    }
+    .meal-option.selected .check-icon {
+        display: block;
+    }
+    .check-icon {
+        display: none;
+    }
+</style>
+
+<script>
+    function initMealSelection() {
+        const hash = window.location.hash.substring(1);
+        const guestCount = parseInt(hash) || 1;
+
+        const container = document.getElementById('meal-selections');
+        const guestCountEl = document.getElementById('meal-guest-count');
+        const sendBtn = document.getElementById('send-meal-btn') as HTMLButtonElement;
+        const errorEl = document.getElementById('meal-error');
+
+        if (guestCountEl) guestCountEl.textContent = guestCount.toString();
+
+        const meals = [
+            {
+                id: 'churrasco-pollo',
+                name: 'Churrasco Argentino & Pollo',
+                description: 'Churrasco argentino y pollo en salsa de hongos con vegetales hervidos y puré',
+            
+            },
+            {
+                id: 'churrasco-langosta',
+                name: 'Churrasco Argentino & Langosta',
+                description: 'Churrasco argentino y langosta termidor con vegetales hervidos y puré',
+               
+            }
+        ];
+
+        // Track selections
+        const selections: string[] = new Array(guestCount).fill('');
+
+        function renderSelections() {
+            if (!container) return;
+            container.innerHTML = '';
+
+            for (let i = 0; i < guestCount; i++) {
+                const guestLabel = guestCount === 1 ? '' : `Invitado ${i + 1}`;
+                
+                const guestDiv = document.createElement('div');
+                guestDiv.className = 'space-y-3';
+                
+                if (guestLabel) {
+                    const label = document.createElement('h3');
+                    label.className = 'text-sm font-serif text-gray-700 uppercase tracking-wider';
+                    label.textContent = guestLabel;
+                    guestDiv.appendChild(label);
+                }
+
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'space-y-3';
+
+                meals.forEach((meal) => {
+                    const isSelected = selections[i] === meal.id;
+                    
+                    const btn = document.createElement('button');
+                    btn.className = `meal-option w-full p-4 bg-white border-2 ${isSelected ? 'border-gray-800 bg-gray-50' : 'border-gray-200'} rounded-xl text-left relative cursor-pointer ${isSelected ? 'selected' : ''}`;
+                    btn.innerHTML = `
+                        <div class="flex items-start gap-3">
+                           
+                            <div class="flex-1">
+                                <p class="text-sm font-serif font-bold text-gray-800">${meal.name}</p>
+                                <p class="text-[10px] text-gray-500 mt-1 leading-relaxed">${meal.description}</p>
+                            </div>
+                          
+                        </div>
+                    `;
+
+                    btn.addEventListener('click', () => {
+                        selections[i] = meal.id;
+                        renderSelections();
+                        updateButton();
+                    });
+
+                    optionsDiv.appendChild(btn);
+                });
+
+                guestDiv.appendChild(optionsDiv);
+
+                // Divider between guests
+                if (i < guestCount - 1) {
+                    const divider = document.createElement('div');
+                    divider.className = 'w-16 h-px bg-gray-300 mx-auto my-2';
+                    guestDiv.appendChild(divider);
+                }
+
+                container.appendChild(guestDiv);
+            }
+        }
+
+        function updateButton() {
+            if (!sendBtn || !errorEl) return;
+            const allSelected = selections.every(s => s !== '');
+            sendBtn.disabled = !allSelected;
+            if (allSelected) {
+                errorEl.classList.add('hidden');
+            }
+        }
+
+        if (sendBtn) {
+            sendBtn.addEventListener('click', () => {
+                const allSelected = selections.every(s => s !== '');
+                if (!allSelected) {
+                    if (errorEl) errorEl.classList.remove('hidden');
+                    return;
+                }
+
+                // Build WhatsApp message
+                const mealNames: Record<string, string> = {
+                    'churrasco-pollo': 'Churrasco argentino y pollo en salsa de hongos',
+                    'churrasco-langosta': 'Churrasco argentino y langosta termidor'
+                };
+
+                let message = `Hola, confirmo mis platos para la boda de Darsy & Dianne el 18 de abril de 2026.\n\n`;
+                
+                if (guestCount === 1) {
+                    message += `Mi plato: ${mealNames[selections[0]]}`;
+                } else {
+                    selections.forEach((sel, idx) => {
+                        message += `Invitado ${idx + 1}: ${mealNames[sel]}\n`;
+                    });
+                }
+
+                const encoded = encodeURIComponent(message);
+                window.open(`https://wa.me/50433304782?text=${encoded}`, '_blank');
+            });
+        }
+
+        renderSelections();
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', initMealSelection);
+    // Also run immediately in case DOM is already loaded
+    if (document.readyState !== 'loading') {
+        initMealSelection();
+    }
+</script>
